@@ -12,6 +12,11 @@ markdown_text = """
 [Dash Gallery](https://dash-gallery.plotly.host/Portal/)
 """
 
+colors = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+}
+
 app.layout = app.layout = html.Div([
     html.H1("Dashboard using Dash", style={
         'textAlign': 'center',
@@ -19,6 +24,24 @@ app.layout = app.layout = html.Div([
         'fontFamily': "arial"
     }),
     dcc.Markdown(markdown_text),
+    dcc.Graph(
+        figure={
+            'data': [
+                {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
+                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
+            ],
+            'layout': {
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': {
+                    'color': colors['text']
+                },
+                'title': 'Basic Data Visualization',
+                "xaxis": {'title': 'X Axis'},
+                "yaxis": {'title': 'Y Axis'},
+            }
+        }
+    )
 ])
 
 
