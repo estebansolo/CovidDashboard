@@ -5,8 +5,6 @@ import dash_html_components as html
 app = dash.Dash(__name__)
 
 markdown_text = """
-# Dashboard using Dash
-
 - Flask
 - Plotly.js
 - React.js
@@ -14,7 +12,16 @@ markdown_text = """
 [Dash Gallery](https://dash-gallery.plotly.host/Portal/)
 """
 
-app.layout = dcc.Markdown(markdown_text)
+app.layout = app.layout = html.Div([
+    html.H1("Dashboard using Dash", style={
+        'textAlign': 'center',
+        'color': '#333333',
+        'fontFamily': "arial"
+    }),
+    dcc.Markdown(markdown_text),
+])
+
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
