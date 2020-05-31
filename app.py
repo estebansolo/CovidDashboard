@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -37,6 +39,25 @@ app.layout = app.layout = html.Div([
         'fontFamily': "arial"
     }),
     dcc.Markdown(markdown_text),
+    html.Label("Countries"),
+    dcc.Dropdown(
+        options=[
+            {'label': 'Colombia', 'value': 'Colombia'},
+            {'label': 'Estados Unidos', 'value': 'Estados Unidos'},
+            {'label': 'España', 'value': 'España'}
+        ],
+        value='Colombia',
+        multi=True,
+        placeholder="Select a country"
+    ),
+    html.Label('Dates Range'),
+    dcc.DatePickerRange(
+        min_date_allowed=datetime(2020, 1, 20),
+        max_date_allowed=datetime(2020, 5, 25),
+        display_format='MMM Do, YY',
+        minimum_nights=3,
+        clearable=True
+    ),
     dcc.Graph(
         figure={
             'data': [
