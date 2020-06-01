@@ -25,12 +25,9 @@ colors = {
 
 covid = pd.read_csv("covid_19.csv")
 covid["Date"] = pd.to_datetime(covid["Date"])
-covid_by_date = covid.groupby([covid["Date"]]).sum()
 
-dates = covid_by_date.index
-confirmed = covid_by_date["Confirmed"].values
-deaths = covid_by_date["Deaths"].values
-recovered = covid_by_date["Recovered"].values
+countries = covid['Country/Region'].unique()
+dropdown_options = [{'label': country, 'value': country} for country in countries]
 
 app.layout = app.layout = html.Div([
     html.H1("Dashboard using Dash", style={
@@ -41,11 +38,7 @@ app.layout = app.layout = html.Div([
     dcc.Markdown(markdown_text),
     html.Label("Countries"),
     dcc.Dropdown(
-        options=[
-            {'label': 'Colombia', 'value': 'Colombia'},
-            {'label': 'Estados Unidos', 'value': 'Estados Unidos'},
-            {'label': 'España', 'value': 'España'}
-        ],
+        options=dropdown_options,
         multi=True,
         id="country",
         placeholder="Select a country"
@@ -59,8 +52,44 @@ app.layout = app.layout = html.Div([
         minimum_nights=3,
         clearable=True
     ),
-    dcc.Graph(
-        figure={
+    dcc.Graph(id="covid_global_graph"),
+    dcc.Graph(id="covid_pie_graph")
+])
+
+@app.callback(
+    [
+        Output("covid_global_graph", "figure"),
+        Output("covid_pie_graph", "figure")
+    ],
+    [
+        Input("country", "value"),
+        Input(component_id="datepicker", component_property="start_date"),
+        Input(component_id="datepicker", component_property="end_date")
+    ]
+)
+def update_covid_graph(countries, start_date, end_date):
+    covid_graph = covid
+
+    if countries:
+        covid_graph = covid_graph[covid_graph["Country/Region"].isin(countries)]
+
+    covid_graph = covid_graph.groupby([covid["Date"]]).sum()
+    
+    if start_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        covid_graph = covid_graph[covid_graph.index >= start_date]
+
+    if end_date:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        covid_graph = covid_graph[covid_graph.index <= end_date]
+
+    dates = covid_graph.index
+    confirmed = covid_graph["Confirmed"].values
+    deaths = covid_graph["Deaths"].values
+    recovered = covid_graph["Recovered"].values
+
+    return (
+        {
             'data': [
                 {'x': dates, 'y': confirmed, 'type': 'linear', 'name': 'Confirmed'},
                 {'x': dates, 'y': deaths, 'type': 'linear', 'name': 'Deaths'},
@@ -76,10 +105,8 @@ app.layout = app.layout = html.Div([
                 "xaxis": {'title': 'Date'},
                 "yaxis": {'title': 'Cases'},
             }
-        }
-    ),
-    dcc.Graph(
-        figure={
+        },
+        {
             "data": [
                 go.Pie(
                     labels=['Actives', 'Deaths', 'Recovered'],
@@ -90,22 +117,7 @@ app.layout = app.layout = html.Div([
                 "title": 'Cases Percentage'
             }
         }
-    ),
-    html.Div(id="hidden_value")
-])
-
-@app.callback(
-    Output("hidden_value", "children"),
-    [
-        Input("country", "value"),
-        Input(component_id="datepicker", component_property="start_date"),
-        Input(component_id="datepicker", component_property="end_date")
-    ]
-)
-def update_covid_graph(countries, start_date, end_date):
-    print(countries)
-    print(start_date, end_date)
-    return ""
+    )
 
 if __name__ == "__main__":
     app.run_server(debug=True)
