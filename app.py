@@ -170,7 +170,6 @@ def display_hover_data(click_data, countries):
                 },
                 "barmode": 'stack',
                 'title': 'Covid 19',
-                "xaxis": {'title': 'Date'},
                 "yaxis": {'title': 'Cases'},
             }
         })
