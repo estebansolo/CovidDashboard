@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import dash
@@ -52,6 +53,7 @@ app.layout = app.layout = html.Div([
         minimum_nights=3,
         clearable=True
     ),
+    html.Pre(id="events_graph_results"),
     dcc.Graph(id="covid_global_graph"),
     dcc.Graph(id="covid_pie_graph")
 ])
@@ -118,6 +120,19 @@ def update_covid_graph(countries, start_date, end_date):
             }
         }
     )
+
+
+"""
+hoverData: Mouse over values in the graph
+clickData: Click on points in the graph
+selectedData: lasso or rectangle and then select points in the graph
+relayoutData: zomm auto scale and more tools
+"""
+@app.callback(
+    Output('events_graph_results', 'children'),
+    [Input('covid_global_graph', 'clickData')])
+def display_hover_data(hoverData):
+    return json.dumps(hoverData, indent=2)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
