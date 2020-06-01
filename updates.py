@@ -1,10 +1,16 @@
 import dash
 import random
+import dash_auth
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+VALID_USERNAME_PASSWORDS = {
+    'hello': 'world'
+}
+
 app = dash.Dash(__name__)
+auth = dash_auth.BasicAuth(app, VALID_USERNAME_PASSWORDS)
 
 colors = {
     'background': '#111111',
