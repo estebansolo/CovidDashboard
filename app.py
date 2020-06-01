@@ -53,9 +53,9 @@ app.layout = app.layout = html.Div([
         minimum_nights=3,
         clearable=True
     ),
-    html.Pre(id="events_graph_results"),
     dcc.Graph(id="covid_global_graph"),
-    dcc.Graph(id="covid_pie_graph")
+    dcc.Graph(id="covid_pie_graph"),
+    html.Div(id="events_graph_results"),
 ])
 
 @app.callback(
@@ -130,9 +130,52 @@ relayoutData: zomm auto scale and more tools
 """
 @app.callback(
     Output('events_graph_results', 'children'),
-    [Input('covid_global_graph', 'clickData')])
-def display_hover_data(hoverData):
-    return json.dumps(hoverData, indent=2)
+    [
+        Input('covid_global_graph', 'clickData'),
+        Input("country", "value")
+    ]
+)
+def display_hover_data(click_data, countries):
+    if not click_data:
+        return html.Div("Please select a day in the Graph.")
+    
+    covid_graph = covid
+    selected_date = click_data["points"][0]["x"]
+
+    selected_date = datetime.strptime(selected_date, "%Y-%m-%d")
+    covid_graph = covid_graph[covid_graph["Date"] == selected_date]
+
+    if countries:
+        covid_graph = covid_graph[covid_graph["Country/Region"].isin(countries)]
+
+    covid_graph = covid_graph.groupby([covid_graph["Country/Region"]]).sum()
+    
+    country = covid_graph.index
+    confirmed = covid_graph["Confirmed"].values
+    deaths = covid_graph["Deaths"].values
+    recovered = covid_graph["Recovered"].values
+
+    return [
+        dcc.Graph(figure={
+            'data': [
+                {'x': country, 'y': confirmed, 'type': 'bar', "name": "Confirmed"},
+                {'x': country, 'y': deaths, 'type': 'bar', "name": "Deaths"},
+                {'x': country, 'y': recovered, 'type': 'bar', "name": "Recovered"},
+            ],
+            'layout': {
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': {
+                    'color': colors['text']
+                },
+                "barmode": 'stack',
+                'title': 'Covid 19',
+                "xaxis": {'title': 'Date'},
+                "yaxis": {'title': 'Cases'},
+            }
+        })
+    ]
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
