@@ -1,4 +1,5 @@
 import dash
+import time
 import random
 import dash_auth
 import dash_core_components as dcc
@@ -21,16 +22,20 @@ app.layout = app.layout = html.Div([
     html.Label("Interval"),
     dcc.RadioItems(
         options=[
-            {'label': '1 second', 'value': 1},
             {'label': '5 seconds', 'value': 5},
-            {'label': '10 seconds', 'value': 10}
+            {'label': '10 seconds', 'value': 10},
+            {'label': '30 seconds', 'value': 30}
         ],
-        value=1,
+        value=5,
         id="interval_options",
         labelStyle={'display': 'inline-block'}
     ),
-    dcc.Graph(id="random_graph"),
-    dcc.Interval(id='interval_component', interval=1000, n_intervals=0)
+    dcc.Loading(id="random_loading", children=[
+        html.Div(
+            dcc.Graph(id="random_graph")
+        )
+    ], type="default"),
+    dcc.Interval(id='interval_component', interval=5000, n_intervals=0)
 ])
 
 @app.callback(
@@ -38,6 +43,8 @@ app.layout = app.layout = html.Div([
     [Input(component_id='interval_component', component_property='n_intervals')]
 )
 def update_graph(input_value):
+    time.sleep(1)
+
     countries = {
         "Colombia": random.randint(0, 100),
         "España": random.randint(0, 100),
