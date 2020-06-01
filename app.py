@@ -4,7 +4,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
-import plotly.express as px
+from dash.dependencies import Input, Output
 
 import pandas as pd
 
@@ -46,12 +46,13 @@ app.layout = app.layout = html.Div([
             {'label': 'Estados Unidos', 'value': 'Estados Unidos'},
             {'label': 'España', 'value': 'España'}
         ],
-        value='Colombia',
         multi=True,
+        id="country",
         placeholder="Select a country"
     ),
     html.Label('Dates Range'),
     dcc.DatePickerRange(
+        id="datepicker",
         min_date_allowed=datetime(2020, 1, 20),
         max_date_allowed=datetime(2020, 5, 25),
         display_format='MMM Do, YY',
@@ -89,10 +90,22 @@ app.layout = app.layout = html.Div([
                 "title": 'Cases Percentage'
             }
         }
-    )
+    ),
+    html.Div(id="hidden_value")
 ])
 
-
+@app.callback(
+    Output("hidden_value", "children"),
+    [
+        Input("country", "value"),
+        Input(component_id="datepicker", component_property="start_date"),
+        Input(component_id="datepicker", component_property="end_date")
+    ]
+)
+def update_covid_graph(countries, start_date, end_date):
+    print(countries)
+    print(start_date, end_date)
+    return ""
 
 if __name__ == "__main__":
     app.run_server(debug=True)
