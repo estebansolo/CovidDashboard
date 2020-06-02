@@ -11,6 +11,8 @@ import pandas as pd
 
 app = dash.Dash(__name__)
 
+app.title = "Covid 19 | Dashboard"
+
 markdown_text = """
 - Flask
 - Plotly.js
